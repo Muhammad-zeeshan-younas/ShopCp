@@ -8,7 +8,7 @@ type HeroProps = {};
 
 export const Hero: React.FC<HeroProps> = React.memo(function Hero({}) {
   return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 sm:px-14 lg:px-20 xl:px-56 sm:h-[80dvh] px-4 gap-16 py-6">
+    <div className="w-full grid grid-cols-1 sm:grid-cols-2 sm:px-14 lg:px-20 xl:px-56 sm:h-[80dvh] min-h-[700px] px-4 gap-16 py-6">
       <div className="col-span-1 grid h-max m-auto">
         <h3 className="sm:text-6xl text-4xl rubik-wet-paint-regular mb-6">Find The Best 3D Design For Your Next Project</h3>
         <p className="text-muted-foreground mb-8">
@@ -37,7 +37,7 @@ export const Hero: React.FC<HeroProps> = React.memo(function Hero({}) {
       </div>
       <div className="relative grid place-items-center">
         <div className="relative m-auto w-[200px] h-[300px] sm:w-[400px] sm:h-[500px] lg:w-[500px] lg:h-[600px]">
-          <Image className=" border-none bg-transparent" src="/3dimage.png" alt="" layout="fill" objectFit="cover" quality={100} />
+          <Image className="border-none bg-transparent object-cover" src="/3dimage.png" alt="" layout="fill" sizes="300px" />
         </div>
       </div>
     </div>

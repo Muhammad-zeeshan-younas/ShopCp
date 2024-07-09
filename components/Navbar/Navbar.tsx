@@ -7,10 +7,13 @@ import { FaRegUserCircle } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { SearchIcon } from "lucide-react";
 import { GiHamburgerMenu } from "react-icons/gi";
+import { useTheme } from "next-themes";
+import { Switch } from "@/components/ui/switch";
 
 type NavbarProps = {};
 
 export const Navbar = React.memo(function Navbar({}: NavbarProps) {
+  const [darkMode, setDarkMode] = React.useState(false);
   const NavLinks = [
     {
       name: "Home",
@@ -22,6 +25,11 @@ export const Navbar = React.memo(function Navbar({}: NavbarProps) {
     },
     { name: "Best Sellers", link: "/best-sellers" },
   ];
+  const { setTheme } = useTheme();
+
+  React.useEffect(() => {
+    setTheme(darkMode ? "dark" : "light");
+  }, [darkMode]);
 
   return (
     <nav className="bg-background py-4 px-10 w-full m-auto shadow-md">
@@ -40,6 +48,13 @@ export const Navbar = React.memo(function Navbar({}: NavbarProps) {
         <SearchComponent />
 
         <div className="flex items-center">
+          <Switch
+            checked={darkMode}
+            onCheckedChange={() => {
+              setDarkMode((prevMode) => !prevMode);
+            }}
+          />
+
           <Button className="p-1 rounded-full bg-transparent border-transparent lg:hidden" variant="outline">
             <SearchIcon className="w-5 h-5" />
           </Button>

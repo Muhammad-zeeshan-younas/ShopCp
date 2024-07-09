@@ -27,8 +27,12 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.1",
+    "@radix-ui/react-dialog": "^1.1.1",
     "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-switch": "^1.1.0",
+    "@reduxjs/toolkit": "^2.2.6",
     "add": "^2.0.6",
+    "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "bcrypt-ts": "^5.0.2",
     "button": "^1.1.1",
@@ -40,6 +44,7 @@
     "firebase-admin": "^12.2.0",
     "init": "^0.1.2",
     "lucide-react": "^0.378.0",
+    "moment-timezone": "^0.5.45",
     "next": "14.2.3",
     "next-themes": "^0.3.0",
     "react": "^18",
@@ -48,10 +53,13 @@
     "react-firebaseui": "^6.0.0",
     "react-icons": "^5.2.1",
     "react-spring": "^9.7.3",
+    "redux": "^5.0.1",
     "shadcn-ui": "^0.8.0",
+    "sonner": "^1.5.0",
     "tailwind-merge": "^2.3.0",
     "tailwindcss-animate": "^1.0.7",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "vaul": "^0.9.1"
   },
   "devDependencies": {
     "@types/node": "^20",

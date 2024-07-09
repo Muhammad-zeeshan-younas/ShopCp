@@ -1,10 +1,11 @@
-import { DocumentReference, Timestamp } from "firebase-admin/firestore";
+import { Moment } from "moment-timezone";
+import { User } from "./User";
 
-export interface Review {
+export type Review = {
   id: string;
-  reviewer: DocumentReference;
+  user: User;
   rating: number;
   comment: string;
-  created_at: Timestamp;
-  updated_at: Timestamp;
-}
+  created_at: Moment;
+  updated_at: Moment;
+};
