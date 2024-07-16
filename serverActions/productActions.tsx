@@ -17,3 +17,14 @@ export async function getProducts(): Promise<Product[]> {
     return [];
   }
 }
+
+export async function getProductById(productId: string): Promise<Product | null> {
+  try {
+    const response = await axiosClient.get(`/products/${productId}`);
+
+    return response.data as Product;
+  } catch (error) {
+    console.error("Error fetching new arrival products:", error);
+    return null;
+  }
+}

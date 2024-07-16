@@ -1,5 +1,6 @@
 "use client";
 import { StarRating } from "@/components/StarRating";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious, useCarousel } from "@/components/ui/carousel";
@@ -20,23 +21,22 @@ export const Reviews: React.FC<ReviewsProps> = React.memo(function Reviews({ rev
       <div className="flex items-center justify-between py-6">
         <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold">OUR HAPPY CUSTOMERS</h3>
         <div className="flex gap-4 items-center">
-           <Button className="p-1 rounded-full bg-transparent border-transparent" variant="outline">
+          <Button className="p-1 rounded-full bg-transparent border-transparent" variant="outline">
             <ArrowLeft
               className="h-6 w-6 cursor-pointer"
               onClick={() => {
                 arrowLeftRef.current?.click();
               }}
             />
-            </Button>
-               <Button className="p-1 rounded-full bg-transparent border-transparent" variant="outline">
+          </Button>
+          <Button className="p-1 rounded-full bg-transparent border-transparent" variant="outline">
             <ArrowRight
               className="h-6 w-6 cursor-pointer"
               onClick={() => {
                 arrowRightRef.current?.click();
               }}
             />
-            </Button>
-    
+          </Button>
         </div>
       </div>
 
@@ -50,7 +50,10 @@ export const Reviews: React.FC<ReviewsProps> = React.memo(function Reviews({ rev
                     <StarRating rating={review.rating} />
                   </CardHeader>
                   <CardContent className="flex items-center gap-4">
-                    <img className="w-10 h-10 object-cover object-top rounded-full" src={review.user.avatar}></img>
+                    <Avatar>
+                      <AvatarImage src={review.user.avatar} alt="@shadcn" />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
                     <CardTitle>{review.user.name}</CardTitle>
                     <ShieldCheckIcon className="w-6 h-6" color="green" />
                   </CardContent>

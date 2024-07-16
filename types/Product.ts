@@ -15,4 +15,5 @@ export type Product = {
   updated_at: Moment;
   sales_count: number;
   reviews?: Review[];
+  sku: string;
 };

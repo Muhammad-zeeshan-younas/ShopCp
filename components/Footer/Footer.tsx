@@ -7,7 +7,7 @@ type FooterProps = {};
 export const Footer = React.memo(function Footer({}: FooterProps) {
   return (
     <>
-      <footer className="bg-primary text-primary-foreground p-10">
+      <footer className="bg-primary text-primary-foreground p-6 sm:p-10">
         <div className="container mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
           <div>
             <h2 className="text-lg font-bold text-primary-foreground">About Us</h2>
@@ -84,7 +84,9 @@ export const Footer = React.memo(function Footer({}: FooterProps) {
             </div>
           </div>
         </div>
-        <div className="mt-10 border-t border-primary-foreground pt-4 text-center text-sm text-primary-foreground">© 2024 Muhammad Zeeshan Younas. All rights reserved.</div>
+        <div className="mt-10 border-t border-primary-foreground pt-4 text-center text-sm text-primary-foreground">
+          © 2024 Muhammad Zeeshan Younas. All rights reserved.
+        </div>
       </footer>
     </>
   );

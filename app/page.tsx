@@ -49,8 +49,9 @@ export default function Home() {
 
   const loading = React.useMemo(() => {
     return !(!!topSellingProducts.length && !!newArrivalProducts.length && !!recentReviews.length);
-  }, [topSellingProducts, newArrivalProducts,recentReviews]);
+  }, [topSellingProducts, newArrivalProducts, recentReviews]);
 
+  console.log(recentReviews);
   if (loading) {
     return (
       <div className="w-full">

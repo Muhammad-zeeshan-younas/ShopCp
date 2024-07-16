@@ -1,9 +1,9 @@
-"use client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import { Product } from "@/types/Product";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 type HeighlightSectionProps = {
   items?: Product[];
@@ -11,6 +11,7 @@ type HeighlightSectionProps = {
 };
 
 export const HeighlightSection: React.FC<HeighlightSectionProps> = React.memo(function HeighlightSection({ title, items }) {
+  const router = useRouter();
   if (!!items?.length) {
     return (
       <div className="py-10 sm:py-14 bg-background px-12 sm:px-16 md:px-24">
@@ -19,24 +20,27 @@ export const HeighlightSection: React.FC<HeighlightSectionProps> = React.memo(fu
           <CarouselContent>
             {items.map((product: Product, index) => (
               <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4">
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="grid w-full p-0">
-                      <img
-                        src={"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS_i0AJ1jKm8LLDHqo8ARGceBuCjQupx2X05A&s"}
-                        alt=""
-                        className="w-full aspect-square object-cover object-top "
-                      />
-                    </CardContent>
-                    <CardHeader className="px-3 pb-2">
-                      <CardTitle> {product.name}</CardTitle>
-                      <CardDescription className="line-clamp-2">{product.description}</CardDescription>
-                    </CardHeader>
-                    <CardFooter className="pt-1 pb-3 px-3">
-                      <span className="text-xl font-semibold">$ {product.price}</span>
-                    </CardFooter>
-                  </Card>
-                </div>
+                <Card
+                 className="cursor-pointer"
+                  onClick={() => {
+                    router.push(`/products/${product.sku}`);
+                  }}
+                >
+                  <CardContent className="grid w-full p-0">
+                    <img
+                      src={"https://i.pinimg.com/236x/4a/0b/8b/4a0b8b45c38872ebcee989a1ede0235f.jpg"}
+                      alt=""
+                      className="w-full aspect-square object-cover object-top"
+                    />
+                  </CardContent>
+                  <CardHeader className="px-3 pb-2">
+                    <CardTitle> {product.name}</CardTitle>
+                    <CardDescription className="line-clamp-2">{product.description}</CardDescription>
+                  </CardHeader>
+                  <CardFooter className="pt-1 pb-3 px-3">
+                    <span className="text-xl font-semibold">$ {product.price}</span>
+                  </CardFooter>
+                </Card>
               </CarouselItem>
             ))}
           </CarouselContent>
