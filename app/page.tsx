@@ -17,6 +17,7 @@ import { Review } from "@/types/Review";
 export default function Home() {
   const [products, setProducts] = React.useState<Product[]>([]);
   const [reviews, setReviews] = React.useState<Review[]>([]);
+
   React.useEffect(() => {
     async function products() {
       const response = await getProducts();
@@ -24,6 +25,7 @@ export default function Home() {
     }
     products();
   }, []);
+
   React.useEffect(() => {
     async function reviews() {
       const response = await getAllReview();
@@ -51,7 +53,6 @@ export default function Home() {
     return !(!!topSellingProducts.length && !!newArrivalProducts.length && !!recentReviews.length);
   }, [topSellingProducts, newArrivalProducts, recentReviews]);
 
-  console.log(recentReviews);
   if (loading) {
     return (
       <div className="w-full">

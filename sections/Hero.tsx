@@ -8,9 +8,9 @@ type HeroProps = {};
 
 export const Hero: React.FC<HeroProps> = React.memo(function Hero({}) {
   return (
-    <div className="w-full grid grid-cols-1 sm:grid-cols-2 sm:px-14 lg:px-20 xl:px-56 sm:h-[80dvh] min-h-[700px] px-4 gap-16 py-6">
+    <div className="container w-full grid grid-cols-1 md:grid-cols-2 py-8 sm:py-10 md:py-12 lg:py-14">
       <div className="col-span-1 grid h-max m-auto">
-        <h3 className="sm:text-6xl text-4xl rubik-wet-paint-regular mb-6">Find The Best 3D Design For Your Next Project</h3>
+        <h3 className="sm:text-6xl text-4xl font-bold mb-6">Find The Best 3D Design For Your Next Project</h3>
         <p className="text-muted-foreground mb-8">
           Browse through our diverse range of meticulously crafted garments, designed to bring out your individuality and cater to your sense of style.
         </p>

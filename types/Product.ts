@@ -8,12 +8,13 @@ export type Product = {
   price: number;
   description: string;
   category: string;
-  image_url: string;
+  images: string[];
   stock: number;
   created_at: Moment;
   stock_quantity: number;
   updated_at: Moment;
   sales_count: number;
   reviews?: Review[];
+  rating: number;
   sku: string;
 };

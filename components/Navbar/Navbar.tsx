@@ -19,7 +19,7 @@ export const Navbar = React.memo(function Navbar({}: NavbarProps) {
 
   const NavLinks = [
     {
-      name: "Home",
+      name: "Dashboard",
       link: "/",
     },
     {
@@ -35,11 +35,11 @@ export const Navbar = React.memo(function Navbar({}: NavbarProps) {
   }, [darkMode]);
 
   return (
-    <div className="bg-background py-4 px-4 sm:px-10 w-full m-auto shadow-md">
-      <nav className="flex justify-between items-center text-foreground max-w-[1500px] w-full m-auto">
+    <div className="bg-background w-full shadow-md py-3">
+      <nav className="flex justify-between py- items-center text-foreground container">
         <SideDrawer />
 
-        <h2 className="text-3xl rubik-wet-paint-regular text-foreground">SHOP.CO</h2>
+        <h2 className="text-3xl font-bold text-foreground">SHOP.CO</h2>
         <ul className="sm:flex gap-5 text-base h-9 text-center hidden">
           {NavLinks.map((nav) => (
             <li key={nav.name} className="h-full grid place-items-center text-muted-foreground ">
@@ -66,12 +66,10 @@ export const Navbar = React.memo(function Navbar({}: NavbarProps) {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button className="p-1 rounded-full bg-transparent border-transparent" variant="outline">
-                <Avatar>
-                  <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
-              </Button>
+              <Avatar className="cursor-pointer">
+                <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
+                <AvatarFallback>CN</AvatarFallback>
+              </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-max">
               <DropdownMenuLabel className="flex gap-3 hover:bg-accent">

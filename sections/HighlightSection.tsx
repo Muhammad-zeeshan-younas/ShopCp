@@ -14,14 +14,14 @@ export const HeighlightSection: React.FC<HeighlightSectionProps> = React.memo(fu
   const router = useRouter();
   if (!!items?.length) {
     return (
-      <div className="py-10 sm:py-14 bg-background px-12 sm:px-16 md:px-24">
+      <div className="py-10 sm:py-14 bg-background px-12 sm:px-14 md:px-16">
         <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-8 sm:mb-12">{title}</h3>
         <Carousel orientation="horizontal" className="w-full m-auto">
           <CarouselContent>
             {items.map((product: Product, index) => (
-              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/4">
+              <CarouselItem key={index} className="md:basis-1/3 xl:basis-1/5">
                 <Card
-                 className="cursor-pointer"
+                  className="cursor-pointer"
                   onClick={() => {
                     router.push(`/products/${product.sku}`);
                   }}
