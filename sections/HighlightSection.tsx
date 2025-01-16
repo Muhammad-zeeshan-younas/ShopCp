@@ -4,6 +4,7 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import { Product } from "@/types/Product";
 import React from "react";
 import { useRouter } from "next/navigation";
+import ThreeDImageViewer from "@/components/ThreeDImageViewer/ThreeDImageViewer";
 
 type HeighlightSectionProps = {
   items?: Product[];
@@ -14,7 +15,7 @@ export const HeighlightSection: React.FC<HeighlightSectionProps> = React.memo(fu
   const router = useRouter();
   if (!!items?.length) {
     return (
-      <div className="py-10 sm:py-14 bg-background px-12 sm:px-14 md:px-16">
+      <div className="py-10 sm:py-14 bg-background px-12 sm:px-14 md:px-24">
         <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-8 sm:mb-12">{title}</h3>
         <Carousel orientation="horizontal" className="w-full m-auto">
           <CarouselContent>

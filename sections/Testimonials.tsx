@@ -50,11 +50,13 @@ export const Reviews: React.FC<ReviewsProps> = React.memo(function Reviews({ rev
                     <StarRating rating={review.rating} />
                   </CardHeader>
                   <CardContent className="flex items-center gap-4">
-                    <Avatar>
-                      <AvatarImage src={review.user.avatar} alt="@shadcn" />
-                      <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <CardTitle>{review.user.name}</CardTitle>
+                    <div className="flex flex-grow items-center gap-4">
+                      <Avatar>
+                        <AvatarImage src={review.user.avatar} alt="@shadcn" />
+                        <AvatarFallback>CN</AvatarFallback>
+                      </Avatar>
+                      <CardTitle className="text-lg">{review.user.username}</CardTitle>
+                    </div>
                     <ShieldCheckIcon className="w-6 h-6" color="green" />
                   </CardContent>
                   <CardFooter>

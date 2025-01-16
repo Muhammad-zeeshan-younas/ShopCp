@@ -2,12 +2,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "..";
 import { User } from "@/types/User";
 
-
 const initialState: User = {
   id: "",
-  name: "",
+  username: "",
   email: "",
   avatar: "",
+  address: "",
+  phone: "",
+  isLoggedIn: false,
 };
 
 const userSlice = createSlice({
@@ -20,17 +22,18 @@ const userSlice = createSlice({
         id: string;
         username: string;
         email: string;
-        avatar: string;
-        isLoggedIn: boolean;
+        avatar?: string; // Make avatar optional
+        isLoggedIn?: boolean; // Make isLoggedIn optional
       }>
     ) => {
-      const { id, username, email, avatar, isLoggedIn } = action.payload;
+      const { id, username, email, avatar, isLoggedIn = false } = action.payload;
+
       return {
         ...state,
         id,
         username,
         email,
-        avatar,
+        avatar: avatar ?? state.avatar, // Keep previous avatar if no new one is provided
         isLoggedIn,
       };
     },

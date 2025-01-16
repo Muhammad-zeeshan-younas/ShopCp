@@ -3,9 +3,7 @@ import { config } from "./config/config";
 import { AppError } from "./error/AppError";
 
 const throwError = (response: any) => {
-  const message = response.data.message
-    ? response.data.message
-    : "Something went wrong, please try again later";
+  const message = response.data.message ? response.data.message : "Something went wrong, please try again later";
 
   throw new AppError(message);
 };
@@ -45,8 +43,8 @@ const checkResponseStatus = (response: any, error: boolean = false) => {
 
 axiosClient.interceptors.response.use(
   (response) => {
-    if (response.headers["authorization"])
-      localStorage.setItem("accessToken", response.headers["authorization"]);
+    console.log("setting headers");
+    if (response.headers["authorization"]) localStorage.setItem("accessToken", response.headers["authorization"]);
 
     checkResponseStatus(response);
 
@@ -64,7 +62,6 @@ axiosClient.interceptors.response.use(
 axiosClient.interceptors.request.use((request) => {
   if (!request?.headers) return request;
   request.headers["authorization"] = localStorage.getItem("accessToken") || "";
-
   return request;
 });
 

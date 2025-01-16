@@ -1,5 +1,4 @@
 "use client";
-import { Navbar } from "@/components/Navbar";
 import Brands from "@/sections/Brands";
 import Hero from "@/sections/Hero";
 import Image from "next/image";
