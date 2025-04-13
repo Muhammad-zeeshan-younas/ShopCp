@@ -1,7 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["picsum.photos"], // Add your image domain here
+    remotePatterns: [
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "3002",
+        pathname: "/rails/active_storage/**",
+      },
+    ],
   },
 };
 

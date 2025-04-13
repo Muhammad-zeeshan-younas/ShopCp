@@ -1,9 +1,7 @@
-import { Product } from "@/types/Product";
-import { User } from "@/types/User";
 import axiosClient from "@/utils/axios";
-import { headers } from "next/headers";
+import { ProductVO, UserVO } from "@/utils/parsers";
 
-export async function signupUser({
+async function signupUser({
   username,
   email,
   password,
@@ -13,10 +11,10 @@ export async function signupUser({
   email: string;
   password: string;
   file: FileList;
-}): Promise<User | null> {
+}): Promise<UserVO | null> {
   try {
     const response = await axiosClient.post(
-      `/user`,
+      `/auth`,
       { username, email, password, avatar: file[0] },
       {
         headers: {
@@ -31,23 +29,42 @@ export async function signupUser({
   }
 }
 
-export async function signinUser({ email, password }: { email: string; password: string }): Promise<User | null> {
+const getUser = async () => {
+  const response = await axiosClient.get("/user");
+  return new UserVO(response.data);
+};
+
+async function signinUser({
+  email,
+  password,
+}: {
+  email: string;
+  password: string;
+}): Promise<UserVO | null> {
   try {
-    const response = await axiosClient.post(`/user/sign_in`, { email, password }, { withCredentials: true });
-    return response.data.user as User;
+    const response = await axiosClient.post(
+      `/auth/sign_in`,
+      { email, password },
+      { withCredentials: true }
+    );
+    return response.data.user as UserVO;
   } catch (error) {
     console.error("Error signing in:", error); // Changed to console.error for better visibility
     return null; // Return null in case of an error
   }
 }
+const logout = async () => {
+  return axiosClient.delete("/auth/sign_out");
+};
 
-export async function getProductById(productId: string): Promise<Product | null> {
+async function getProductById(productId: string): Promise<ProductVO | null> {
   try {
     const response = await axiosClient.get(`/products/${productId}`);
 
-    return response.data as Product;
+    return response.data as ProductVO;
   } catch (error) {
     console.error("Error fetching new arrival products:", error);
     return null;
   }
 }
+export { getUser, signinUser, signupUser, getProductById, logout };

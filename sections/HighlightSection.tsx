@@ -1,60 +1,148 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
-import { Product } from "@/types/Product";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 import React from "react";
 import { useRouter } from "next/navigation";
-import ThreeDImageViewer from "@/components/ThreeDImageViewer/ThreeDImageViewer";
+import Image from "next/image";
+import { Badge } from "@/components/ui/badge";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ProductVO } from "@/utils/parsers";
 
-type HeighlightSectionProps = {
-  items?: Product[];
+type HighlightSectionProps = {
+  items?: ProductVO[];
   title: string;
+  viewAllLink?: string;
 };
 
-export const HeighlightSection: React.FC<HeighlightSectionProps> = React.memo(function HeighlightSection({ title, items }) {
-  const router = useRouter();
-  if (!!items?.length) {
+// Custom arrow components
+const NextArrow = (props: any) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={`${className} !flex items-center justify-center h-full w-12 !right-0 before:hidden`}
+      style={{ ...style }}
+      onClick={onClick}
+    >
+      <ChevronRight className="w-8 h-8 text-foreground bg-background/80 hover:bg-background rounded-full p-1 shadow-md border" />
+    </div>
+  );
+};
+
+const PrevArrow = (props: any) => {
+  const { className, style, onClick } = props;
+  return (
+    <div
+      className={`${className} !flex items-center justify-center h-full w-12 !left-0 z-10 before:hidden`}
+      style={{ ...style }}
+      onClick={onClick}
+    >
+      <ChevronLeft className="w-8 h-8 text-foreground bg-background/80 hover:bg-background rounded-full p-1 shadow-md border" />
+    </div>
+  );
+};
+
+export const HighlightSection: React.FC<HighlightSectionProps> = React.memo(
+  function HighlightSection({ title, items, viewAllLink = "/products" }) {
+    const router = useRouter();
+
+    if (!items?.length) return null;
+
+    const sliderSettings = {
+      dots: true,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 4,
+      slidesToScroll: 1,
+      nextArrow: <NextArrow />,
+      prevArrow: <PrevArrow />,
+      responsive: [
+        {
+          breakpoint: 1024,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 1,
+          },
+        },
+        {
+          breakpoint: 768,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 1,
+          },
+        },
+        {
+          breakpoint: 640,
+          settings: {
+            slidesToShow: 1,
+            slidesToScroll: 1,
+          },
+        },
+      ],
+    };
+
     return (
-      <div className="py-10 sm:py-14 bg-background px-12 sm:px-14 md:px-24">
-        <h3 className="text-2xl sm:text-3xl md:text-5xl font-bold text-center mb-8 sm:mb-12">{title}</h3>
-        <Carousel orientation="horizontal" className="w-full m-auto">
-          <CarouselContent>
-            {items.map((product: Product, index) => (
-              <CarouselItem key={index} className="md:basis-1/3 xl:basis-1/5">
+      <section className="bg-background w-full px-4 sm:px-8 py-8">
+        <div className="mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold">{title}</h2>
+        </div>
+
+        <div className="relative">
+          <Slider {...sliderSettings} className="px-2">
+            {items.map((product) => (
+              <div key={product.sku} className="px-2">
                 <Card
-                  className="cursor-pointer"
-                  onClick={() => {
-                    router.push(`/products/${product.sku}`);
-                  }}
+                  className="group overflow-hidden hover:shadow-lg transition-shadow duration-300 cursor-pointer h-full"
+                  onClick={() => router.push(`/products/${product.sku}`)}
                 >
-                  <CardContent className="grid w-full p-0">
-                    <img
-                      src={"https://i.pinimg.com/236x/4a/0b/8b/4a0b8b45c38872ebcee989a1ede0235f.jpg"}
-                      alt=""
-                      className="w-full aspect-square object-cover object-top"
-                    />
-                  </CardContent>
-                  <CardHeader className="px-3 pb-2">
-                    <CardTitle> {product.name}</CardTitle>
-                    <CardDescription className="line-clamp-2">{product.description}</CardDescription>
+                  <div className="relative">
+                    <CardContent className="p-0 aspect-square">
+                      <Image
+                        src={product?.images[0] || ""}
+                        alt={product?.name || ""}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </CardContent>
+                    {product.isNew && (
+                      <Badge
+                        variant="secondary"
+                        className="absolute top-2 right-2 animate-pulse"
+                      >
+                        New
+                      </Badge>
+                    )}
+                  </div>
+
+                  <CardHeader className="px-4 pb-2 pt-4">
+                    <CardTitle className="truncate">{product.name}</CardTitle>
+                    <CardDescription className="line-clamp-2">
+                      {product.description}
+                    </CardDescription>
                   </CardHeader>
-                  <CardFooter className="pt-1 pb-3 px-3">
-                    <span className="text-xl font-semibold">$ {product.price}</span>
+
+                  <CardFooter className="px-4 pb-4">
+                    <span className="text-lg font-semibold">
+                      ${product?.price.toFixed(2)}
+                    </span>
                   </CardFooter>
                 </Card>
-              </CarouselItem>
+              </div>
             ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-
-        <Button variant="outline" className="sm:w-max px-14 py-5 m-auto flex items-center justify-center mt-6 w-full">
-          View All
-        </Button>
-      </div>
+          </Slider>
+        </div>
+      </section>
     );
   }
-});
+);
 
-export default HeighlightSection;
+export default HighlightSection;
