@@ -10,17 +10,13 @@ export class VariantVO extends AbstractVO {
   public readonly price_adjustment?: number;
   public readonly stock_quantity?: number;
 
-  public readonly options?: VariantOptionVO[];
-
   constructor(data: any = {}) {
     super(data);
     this.product_id = data.product_id;
     this.name = data.name;
     this.sku_suffix = data.sku_suffix;
-    this.price_adjustment = this.parseNumber(data.price_adjustment);
-    this.stock_quantity = this.parseNumber(data.stock_quantity);
-
-    this.options = this.parseInstances(data.options, VariantOptionVO);
+    this.price_adjustment = this.parseInt(data.price_adjustment);
+    this.stock_quantity = this.parseInt(data.stock_quantity);
   }
 
   // Getters
@@ -43,10 +39,5 @@ export class VariantVO extends AbstractVO {
   // Computed properties
   get fullSku() {
     return `${this.productId}-${this.skuSuffix}`;
-  }
-
-  protected parseNumber(value: any): number | undefined {
-    if (value === undefined || value === null) return undefined;
-    return Number(value);
   }
 }

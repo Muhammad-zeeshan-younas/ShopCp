@@ -12,11 +12,7 @@ export abstract class RootVO {
   constructor(data: unknown) {} // eslint-disable-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
 
   /** Using valuePropName in case value is in the form of { *valuePropName*: {*actual object*} } */
-  parseInstance<T>(
-    value: unknown,
-    className: new (data: unknown) => T,
-    valuePropName?: string
-  ): T | undefined {
+  parseInstance<T>(value: unknown, className: new (data: unknown) => T, valuePropName?: string): T | undefined {
     if (!value) return undefined;
     if (valuePropName && (value as Record<string, unknown>)[valuePropName]) {
       return new className((value as Record<string, unknown>)[valuePropName]);
@@ -25,11 +21,7 @@ export abstract class RootVO {
   }
 
   /** Using valuePropName in case value is in the form of [{ *valuePropName*: {*actual object*} }, { *valuePropName*: {*actual object*} }] */
-  parseInstances<T>(
-    value: unknown[],
-    className: new (data: unknown) => T,
-    valuePropName?: string
-  ): T[] {
+  parseInstances<T>(value: unknown[], className: new (data: unknown) => T, valuePropName?: string): T[] {
     return Array.isArray(value)
       ? value.map((item) =>
           valuePropName && (item as Record<string, unknown>)[valuePropName]
@@ -39,24 +31,15 @@ export abstract class RootVO {
       : [];
   }
 
-  parseMultiTypeInstance<T>(
-    item: unknown,
-    map: Record<string, new (data: unknown) => T>
-  ): T | undefined {
+  parseMultiTypeInstance<T>(item: unknown, map: Record<string, new (data: unknown) => T>): T | undefined {
     if (!item || typeof item !== "object") return undefined;
 
     const key = Object.keys(item)[0];
     const classConstructor = map[key];
-    return classConstructor
-      ? new classConstructor((item as Record<string, unknown>)[key])
-      : undefined;
+    return classConstructor ? new classConstructor((item as Record<string, unknown>)[key]) : undefined;
   }
 
-  parseMultiTypeInstances<T>(
-    value: unknown[],
-    map: Record<string, new (data: unknown) => T>,
-    removeKey = false
-  ): T[] {
+  parseMultiTypeInstances<T>(value: unknown[], map: Record<string, new (data: unknown) => T>, removeKey = false): T[] {
     return (
       value
         ?.map((item) => {
@@ -64,11 +47,7 @@ export abstract class RootVO {
           const key = Object.keys(item)[0];
           const instance = this.parseMultiTypeInstance(item, map);
 
-          return instance
-            ? removeKey
-              ? instance
-              : { [key]: instance }
-            : undefined;
+          return instance ? (removeKey ? instance : { [key]: instance }) : undefined;
         })
         .filter((item): item is T => !!item) || []
     );
@@ -83,9 +62,7 @@ export abstract class RootVO {
   }
 
   parseInt(value: unknown): number | undefined {
-    return !this.isValueEmpty(value)
-      ? parseInt(value as string, 10)
-      : undefined;
+    return !this.isValueEmpty(value) ? parseInt(value as string, 10) : undefined;
   }
 
   parseFloat(value: unknown): number | undefined {

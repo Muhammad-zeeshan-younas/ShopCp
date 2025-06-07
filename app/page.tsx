@@ -1,7 +1,7 @@
 "use client";
 import Brands from "@/sections/Brands";
 import Hero from "@/sections/Hero";
-import HighlightSection from "@/sections/HighlightSection";
+
 import Testimonials from "@/sections/Testimonials";
 import { getProducts } from "@/serverActions/productActions";
 import React, { Suspense, useMemo } from "react";
@@ -12,6 +12,7 @@ import { getAllReview } from "@/serverActions/reviewActions";
 import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProductVO, ReviewVO } from "@/utils/parsers";
+import HighlightSection from "@/sections/HighlightSection";
 
 export default function Home() {
   // Using React Query with proper error handling
@@ -23,6 +24,8 @@ export default function Home() {
     queryKey: ["products"],
     queryFn: async () => {
       const data = await getProducts();
+      console.log("print mee");
+      console.log(data);
       return Array.isArray(data) ? data : [];
     },
     staleTime: 1000 * 60 * 5, // 5 minutes cache
@@ -43,28 +46,18 @@ export default function Home() {
 
   // Memoized derived data with proper typing
   const recentReviews: ReviewVO[] = useMemo(() => {
-    return [...reviews]
-      .sort(
-        (a, b) =>
-          moment(b.created_at).valueOf() - moment(a.created_at).valueOf()
-      )
-      .slice(0, 10);
+    return [...reviews].sort((a, b) => moment(b.created_at).valueOf() - moment(a.created_at).valueOf()).slice(0, 10);
   }, [reviews]);
 
   // Modified to use rating instead of sales_count
   const popularProducts: ProductVO[] = useMemo(() => {
-    return [...products]
-      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-      .slice(0, 5);
+    return [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
   }, [products]);
 
+  console.log("popular products", products);
+
   const newArrivalProducts: ProductVO[] = useMemo(() => {
-    return [...products]
-      .sort(
-        (a, b) =>
-          moment(b.created_at).valueOf() - moment(a.created_at).valueOf()
-      )
-      .slice(0, 10);
+    return [...products].sort((a, b) => moment(b.created_at).valueOf() - moment(a.created_at).valueOf()).slice(0, 10);
   }, [products]);
 
   const isLoading = productsLoading || reviewsLoading;
@@ -73,12 +66,8 @@ export default function Home() {
   if (error) {
     return (
       <div className="container mx-auto px-4 py-8 text-center">
-        <h2 className="text-xl font-bold text-red-500 mb-4">
-          Error loading data
-        </h2>
-        <p className="text-gray-600">
-          {error instanceof Error ? error.message : "An unknown error occurred"}
-        </p>
+        <h2 className="text-xl font-bold text-red-500 mb-4">Error loading data</h2>
+        <p className="text-gray-600">{error instanceof Error ? error.message : "An unknown error occurred"}</p>
       </div>
     );
   }
@@ -127,7 +116,7 @@ export default function Home() {
           <Hero />
           <Brands />
           <HighlightSection title="NEW ARRIVALS" items={newArrivalProducts} />
-          <HighlightSection title="POPULAR ITEMS" items={popularProducts} />
+          {/* <HighlightSection title="POPULAR ITEMS" items={popularProducts} /> */}
           <Testimonials reviews={recentReviews} />
         </div>
       </Suspense>
