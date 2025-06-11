@@ -27,9 +27,9 @@ export async function getAllReviewsByProductId({
   productId,
   page,
 }: {
-  productId: string | undefined;
+  productId: number | undefined;
   page: number;
-}): Promise<ReviewVO | undefined> {
+}): Promise<ReviewVO[] | undefined> {
   try {
     const response = await axiosClient.get(
       `/products/${productId}/product-reviews`,
@@ -38,7 +38,7 @@ export async function getAllReviewsByProductId({
       }
     );
 
-    return response.data as ReviewVO;
+    return response.data as ReviewVO[];
   } catch (error) {
     console.error("Error fetching reviews by product ID:", error);
     return undefined;

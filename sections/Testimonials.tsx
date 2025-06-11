@@ -1,4 +1,5 @@
 "use client";
+
 import { StarRating } from "@/components/StarRating";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import {
   CardTitle,
   CardFooter,
 } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight, ShieldCheckIcon } from "lucide-react";
+import { ChevronRight, ShieldCheckIcon } from "lucide-react";
 import React, { useRef } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
@@ -58,62 +59,45 @@ export const Reviews: React.FC<ReviewsProps> = React.memo(function Reviews({
   };
 
   return (
-    <section className="bg-background w-full px-4 sm:px-8 py-8">
+    <section className="container bg-background w-full px-4 sm:px-8 py-8">
       <div className="w-full">
-        <div className="flex mb-8">
+        <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl sm:text-3xl font-bold">
             OUR HAPPY CUSTOMERS
           </h2>
-          <div className="flex gap-4 items-center ml-auto">
-            <Button
-              variant="outline"
-              size="icon"
-              className="p-1 rounded-full bg-transparent border-transparent"
-              onClick={() => sliderRef.current?.slickPrev()}
-            >
-              <ChevronLeft className="h-6 w-6" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="p-1 rounded-full bg-transparent border-transparent"
-              onClick={() => sliderRef.current?.slickNext()}
-            >
-              <ChevronRight className="h-6 w-6" />
-            </Button>
-          </div>
         </div>
 
-        <div className="relative">
-          <Slider ref={sliderRef} {...sliderSettings} className="px-2">
-            {reviews.map((review, index) => (
-              <div key={index} className="px-2">
-                <Card className="h-full group overflow-hidden hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="px-4 pb-2 pt-4">
-                    <StarRating rating={review.rating} />
-                  </CardHeader>
-                  <CardContent className="flex items-center gap-4 px-4 pb-2">
-                    <div className="flex flex-grow items-center gap-4">
-                      <Avatar>
-                        <AvatarImage src={review?.user.avatar} alt="@shadcn" />
-                        <AvatarFallback>CN</AvatarFallback>
-                      </Avatar>
-                      <CardTitle className="text-lg">
-                        {review?.user.username}
-                      </CardTitle>
-                    </div>
-                    <ShieldCheckIcon className="w-6 h-6" color="green" />
-                  </CardContent>
-                  <CardFooter className="px-4 pb-4">
-                    <CardDescription className="line-clamp-3">
-                      <q>{review.comment}</q>
-                    </CardDescription>
-                  </CardFooter>
-                </Card>
-              </div>
-            ))}
-          </Slider>
-        </div>
+        <Slider ref={sliderRef} {...sliderSettings}>
+          {reviews.map((review, index) => (
+            <div key={index} className="px-2">
+              <Card className="h-full group overflow-hidden hover:shadow-lg transition-shadow duration-300">
+                <CardHeader className="px-4 pb-2 pt-4">
+                  <StarRating rating={review.rating || 0} />
+                </CardHeader>
+                <CardContent className="flex items-center gap-4 px-4 pb-2">
+                  <div className="flex flex-grow items-center gap-4">
+                    <Avatar>
+                      <AvatarImage
+                        src={review?.user?.avatar}
+                        alt={review?.user?.username || "User"}
+                      />
+                      <AvatarFallback>CN</AvatarFallback>
+                    </Avatar>
+                    <CardTitle className="text-lg">
+                      {review?.user?.username}
+                    </CardTitle>
+                  </div>
+                  <ShieldCheckIcon className="w-6 h-6 text-green-500" />
+                </CardContent>
+                <CardFooter className="px-4 pb-4">
+                  <CardDescription className="line-clamp-3">
+                    <q>{review.comment}</q>
+                  </CardDescription>
+                </CardFooter>
+              </Card>
+            </div>
+          ))}
+        </Slider>
       </div>
     </section>
   );

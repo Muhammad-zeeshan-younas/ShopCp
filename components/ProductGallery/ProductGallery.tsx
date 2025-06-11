@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button"; // (optional—remove if unused elsewhere)
 import {
   ChevronLeft,
   ChevronRight,
@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
-import { useSwipeable } from "react-swipeable";
 import { cn } from "@/lib/utils";
 
 interface ProductGalleryProps {
@@ -18,29 +17,31 @@ interface ProductGalleryProps {
 }
 
 export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
+  /* ─────────────────────────────── state ─────────────────────────────── */
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showThumbnails, setShowThumbnails] = useState(true);
   const [touchStart, setTouchStart] = useState(0);
 
-  // Navigation handlers
-  const goToPrevious = useCallback(() => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
-  }, [images.length]);
+  /* ───────────────────── navigation helpers (click / touch) ────────────────── */
+  const goToPrevious = useCallback(
+    () =>
+      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1)),
+    [images.length]
+  );
 
-  const goToNext = useCallback(() => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
-  }, [images.length]);
+  const goToNext = useCallback(
+    () =>
+      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1)),
+    [images.length]
+  );
 
-  const goToImage = (index: number) => {
-    setCurrentIndex(index);
-  };
+  const goToImage = (index: number) => setCurrentIndex(index);
 
-  // Touch handlers for mobile swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
+  /* ───────────────────────────── touch swipe ──────────────────────────── */
+  const handleTouchStart = (e: React.TouchEvent) =>
     setTouchStart(e.touches[0].clientX);
-  };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEnd = e.changedTouches[0].clientX;
@@ -48,9 +49,9 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
     if (touchStart - touchEnd < -50) goToPrevious();
   };
 
-  // Keyboard navigation
+  /* ─────────────────────────── keyboard support ───────────────────────── */
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") goToNext();
       if (e.key === "ArrowLeft") goToPrevious();
       if (e.key === "Escape") {
@@ -58,12 +59,11 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
         setIsZoomed(false);
       }
     };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [goToNext, goToPrevious]);
 
-  // Fullscreen handling
+  /* ─────────────────────────── fullscreen toggle ──────────────────────── */
   const toggleFullscreen = () => {
     if (!isFullscreen) {
       document.documentElement.requestFullscreen().catch(console.log);
@@ -74,6 +74,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
     }
   };
 
+  /* ─────────────────────────────── empty state ────────────────────────── */
   if (!images.length) {
     return (
       <div
@@ -83,13 +84,12 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
           className
         )}
       >
-        <div className="text-center space-y-2">
-          <p className="text-muted-foreground/70">No images available</p>
-        </div>
+        <p className="text-muted-foreground/70">No images available</p>
       </div>
     );
   }
 
+  /* ───────────────────────────── component UI ─────────────────────────── */
   return (
     <div
       className={cn(
@@ -100,13 +100,15 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
         className
       )}
     >
-      {/* Main Image Container */}
+      {/* ────────────────────── main image container ────────────────────── */}
       <div
         className={cn(
-          "relative aspect-square w-full rounded-xl overflow-hidden",
+          // Fixed height per breakpoint, instead of aspect-square
+          "relative w-full h-[320px] sm:h-[380px] md:h-[440px] lg:h-[500px] xl:h-[560px]",
+          "rounded-xl overflow-hidden",
           "bg-gradient-to-br from-muted/30 to-muted",
-          "border border-muted-foreground/10",
-          isZoomed ? "cursor-zoom-out" : "cursor-zoom-in"
+          isZoomed ? "cursor-zoom-out" : "cursor-zoom-in",
+          "border border-muted-foreground/10"
         )}
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
@@ -116,18 +118,19 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
           src={images[currentIndex]}
           alt={`Product view ${currentIndex + 1}`}
           fill
+          priority
+          quality={100}
           className={cn(
             "object-contain transition-transform duration-300 ease-in-out",
             isZoomed ? "scale-150" : "scale-100"
           )}
-          priority
-          quality={100}
         />
 
-        {/* Navigation Arrows */}
+        {/* ◀ / ▶ navigation arrows */}
         {images.length > 1 && (
           <>
             <button
+              aria-label="Previous image"
               onClick={(e) => {
                 e.stopPropagation();
                 goToPrevious();
@@ -137,14 +140,13 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
                 "h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm",
                 "flex items-center justify-center shadow-sm",
                 "opacity-0 group-hover:opacity-100 transition-opacity",
-                "border border-muted-foreground/10",
-                "hover:bg-background/90"
+                "border border-muted-foreground/10 hover:bg-background/90"
               )}
-              aria-label="Previous image"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
+              aria-label="Next image"
               onClick={(e) => {
                 e.stopPropagation();
                 goToNext();
@@ -154,19 +156,18 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
                 "h-10 w-10 rounded-full bg-background/80 backdrop-blur-sm",
                 "flex items-center justify-center shadow-sm",
                 "opacity-0 group-hover:opacity-100 transition-opacity",
-                "border border-muted-foreground/10",
-                "hover:bg-background/90"
+                "border border-muted-foreground/10 hover:bg-background/90"
               )}
-              aria-label="Next image"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
           </>
         )}
 
-        {/* Image Controls */}
+        {/* zoom / fullscreen controls */}
         <div className="absolute bottom-4 right-4 flex gap-2 z-10">
           <button
+            aria-label={isZoomed ? "Zoom out" : "Zoom in"}
             onClick={(e) => {
               e.stopPropagation();
               setIsZoomed(!isZoomed);
@@ -175,10 +176,8 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
               "h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm",
               "flex items-center justify-center shadow-sm",
               "opacity-0 group-hover:opacity-100 transition-opacity",
-              "border border-muted-foreground/10",
-              "hover:bg-background/90"
+              "border border-muted-foreground/10 hover:bg-background/90"
             )}
-            aria-label={isZoomed ? "Zoom out" : "Zoom in"}
           >
             {isZoomed ? (
               <ZoomOut className="h-4 w-4" />
@@ -187,6 +186,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
             )}
           </button>
           <button
+            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
             onClick={(e) => {
               e.stopPropagation();
               toggleFullscreen();
@@ -195,10 +195,8 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
               "h-9 w-9 rounded-full bg-background/80 backdrop-blur-sm",
               "flex items-center justify-center shadow-sm",
               "opacity-0 group-hover:opacity-100 transition-opacity",
-              "border border-muted-foreground/10",
-              "hover:bg-background/90"
+              "border border-muted-foreground/10 hover:bg-background/90"
             )}
-            aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
           >
             {isFullscreen ? (
               <Minimize2 className="h-4 w-4" />
@@ -208,7 +206,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
           </button>
         </div>
 
-        {/* Image Counter */}
+        {/* image counter */}
         {images.length > 1 && (
           <div
             className={cn(
@@ -223,32 +221,36 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
         )}
       </div>
 
-      {/* Thumbnail Gallery - Now takes full width */}
+      {/* ───────────────────────── thumbnail strip ──────────────────────── */}
       {showThumbnails && images.length > 1 && (
         <div
           className={cn(
-            "mt-4 w-full grid grid-flow-col auto-cols-[minmax(80px,1fr)] gap-3 overflow-x-auto pb-2",
+            "mt-4 w-full",
+            // responsive column width + smooth scroll
+            "grid grid-flow-col",
+            "auto-cols-[minmax(80px,1fr)] sm:auto-cols-[minmax(100px,1fr)] md:auto-cols-[minmax(120px,1fr)] lg:auto-cols-[minmax(140px,1fr)]",
+            "gap-3 overflow-x-auto pb-2",
             "scrollbar-thin scrollbar-thumb-muted-foreground/20 scrollbar-track-transparent"
           )}
         >
           {images.map((image, index) => (
             <button
               key={index}
+              aria-label={`View image ${index + 1}`}
               onClick={() => goToImage(index)}
               className={cn(
-                "relative h-20 w-full rounded-lg overflow-hidden",
-                "transition-all duration-200 ease-in-out",
-                "border-2 aspect-square",
+                // taller thumbnails on md / lg screens
+                "relative h-20 sm:h-24 md:h-28 lg:h-32 w-full rounded-lg overflow-hidden",
+                "border-2 aspect-square transition-all duration-200 ease-in-out",
                 currentIndex === index
                   ? "border-primary shadow-md"
                   : "border-transparent hover:border-muted-foreground/20",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               )}
-              aria-label={`View image ${index + 1}`}
             >
               <Image
                 src={image}
-                alt={`Thumbnail ${index}`}
+                alt={`Thumbnail ${index + 1}`}
                 fill
                 className="object-cover"
               />
@@ -260,15 +262,14 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
         </div>
       )}
 
-      {/* Thumbnail Toggle (Mobile) */}
+      {/* ──────────────────── mobile thumbnail toggle button ─────────────── */}
       {images.length > 1 && (
         <button
           onClick={() => setShowThumbnails(!showThumbnails)}
           className={cn(
             "lg:hidden mt-2 w-full py-1.5 rounded-md",
             "bg-muted hover:bg-muted/80 transition-colors",
-            "text-sm font-medium text-muted-foreground",
-            "flex items-center justify-center gap-1"
+            "text-sm font-medium text-muted-foreground flex items-center justify-center gap-1"
           )}
         >
           {showThumbnails ? "Hide thumbnails" : "Show thumbnails"}
