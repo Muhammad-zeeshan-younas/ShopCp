@@ -1,12 +1,5 @@
 import { Button } from "@/components/ui/button"; // (optional—remove if unused elsewhere)
-import {
-  ChevronLeft,
-  ChevronRight,
-  Expand,
-  Minimize2,
-  ZoomIn,
-  ZoomOut,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Expand, Minimize2, ZoomIn, ZoomOut } from "lucide-react";
 import Image from "next/image";
 import { useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -25,23 +18,14 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
   const [touchStart, setTouchStart] = useState(0);
 
   /* ───────────────────── navigation helpers (click / touch) ────────────────── */
-  const goToPrevious = useCallback(
-    () =>
-      setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1)),
-    [images.length]
-  );
+  const goToPrevious = useCallback(() => setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1)), [images.length]);
 
-  const goToNext = useCallback(
-    () =>
-      setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1)),
-    [images.length]
-  );
+  const goToNext = useCallback(() => setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1)), [images.length]);
 
   const goToImage = (index: number) => setCurrentIndex(index);
 
   /* ───────────────────────────── touch swipe ──────────────────────────── */
-  const handleTouchStart = (e: React.TouchEvent) =>
-    setTouchStart(e.touches[0].clientX);
+  const handleTouchStart = (e: React.TouchEvent) => setTouchStart(e.touches[0].clientX);
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const touchEnd = e.changedTouches[0].clientX;
@@ -91,15 +75,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
 
   /* ───────────────────────────── component UI ─────────────────────────── */
   return (
-    <div
-      className={cn(
-        "relative group w-full",
-        isFullscreen
-          ? "fixed inset-0 z-50 bg-background p-4 flex flex-col"
-          : "",
-        className
-      )}
-    >
+    <div className={cn("relative group w-full", isFullscreen ? "fixed inset-0 z-50 bg-background p-4 flex flex-col" : "", className)}>
       {/* ────────────────────── main image container ────────────────────── */}
       <div
         className={cn(
@@ -120,10 +96,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
           fill
           priority
           quality={100}
-          className={cn(
-            "object-contain transition-transform duration-300 ease-in-out",
-            isZoomed ? "scale-150" : "scale-100"
-          )}
+          className={cn("object-contain transition-transform duration-300 ease-in-out", isZoomed ? "scale-150" : "scale-100")}
         />
 
         {/* ◀ / ▶ navigation arrows */}
@@ -179,11 +152,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
               "border border-muted-foreground/10 hover:bg-background/90"
             )}
           >
-            {isZoomed ? (
-              <ZoomOut className="h-4 w-4" />
-            ) : (
-              <ZoomIn className="h-4 w-4" />
-            )}
+            {isZoomed ? <ZoomOut className="h-4 w-4" /> : <ZoomIn className="h-4 w-4" />}
           </button>
           <button
             aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
@@ -198,11 +167,7 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
               "border border-muted-foreground/10 hover:bg-background/90"
             )}
           >
-            {isFullscreen ? (
-              <Minimize2 className="h-4 w-4" />
-            ) : (
-              <Expand className="h-4 w-4" />
-            )}
+            {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Expand className="h-4 w-4" />}
           </button>
         </div>
 
@@ -242,21 +207,12 @@ export const ProductGallery = ({ images, className }: ProductGalleryProps) => {
                 // taller thumbnails on md / lg screens
                 "relative h-20 sm:h-24 md:h-28 lg:h-32 w-full rounded-lg overflow-hidden",
                 "border-2 aspect-square transition-all duration-200 ease-in-out",
-                currentIndex === index
-                  ? "border-primary shadow-md"
-                  : "border-transparent hover:border-muted-foreground/20",
+                currentIndex === index ? "border-primary shadow-md" : "border-transparent hover:border-muted-foreground/20",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
               )}
             >
-              <Image
-                src={image}
-                alt={`Thumbnail ${index + 1}`}
-                fill
-                className="object-cover"
-              />
-              {currentIndex === index && (
-                <div className="absolute inset-0 bg-primary/10" />
-              )}
+              <Image src={image} alt={`Thumbnail ${index + 1}`} fill className="object-cover" />
+              {currentIndex === index && <div className="absolute inset-0 bg-primary/10" />}
             </button>
           ))}
         </div>

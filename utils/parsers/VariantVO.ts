@@ -3,24 +3,10 @@
 import { AbstractVO } from "./AbsctractVO";
 
 /** Payload shape coming from VariantBlueprint */
-export interface VariantDTO {
-  id: number;
-  product_id: number;
-  size: string;
-  color: string;
-  sku_suffix: string;
-  price_adjustment: number | string;
-  stock_quantity: number | string;
-  created_at: string; // ISO-8601
-  updated_at: string; // ISO-8601
-  final_price: number | string;
-  in_stock: boolean;
-  low_stock: boolean;
-}
 
 export class VariantVO extends AbstractVO {
   /* ───────────────────────── Raw fields ───────────────────────── */
-  readonly id!: number;
+
   readonly product_id!: number;
   readonly size!: string;
   readonly color!: string;
@@ -34,12 +20,10 @@ export class VariantVO extends AbstractVO {
   readonly in_stock!: boolean;
   readonly low_stock!: boolean;
 
-  constructor(data: VariantDTO) {
+  constructor(data: any) {
     super(data);
 
-    this.id = Number(data.id);
     this.product_id = Number(data.product_id);
-
     this.size = data.size;
     this.color = data.color;
     this.sku_suffix = data.sku_suffix;
@@ -77,8 +61,7 @@ export class VariantVO extends AbstractVO {
   /* ───────────────────────── Helpers ──────────────────────────── */
   private toNumber(value: unknown): number {
     const n = Number(value);
-    if (!Number.isFinite(n))
-      throw new Error(`Expected numeric value, got ${value}`);
+    if (!Number.isFinite(n)) throw new Error(`Expected numeric value, got ${value}`);
     return n;
   }
 }

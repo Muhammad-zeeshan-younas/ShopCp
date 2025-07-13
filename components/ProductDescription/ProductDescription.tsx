@@ -4,15 +4,11 @@ interface ProductDescriptionProps {
   description: string;
 }
 
-export const ProductDescription = ({
-  description,
-}: ProductDescriptionProps) => {
+export const ProductDescription = ({ description }: ProductDescriptionProps) => {
   return (
-    <Card>
+    <Card className="border border-border/50">
       <CardContent className="p-6">
-        <p className="text-muted-foreground">
-          {description || "No description available"}
-        </p>
+        <p className="text-muted-foreground">{description || "No description available"}</p>
       </CardContent>
     </Card>
   );

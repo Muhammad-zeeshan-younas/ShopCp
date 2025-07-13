@@ -1,107 +1,103 @@
 "use client";
-import * as z from "zod";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useUserStore } from "@/Zustand/store/user.store";
 import { useState } from "react";
-
-const signInSchema = z.object({
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-});
-
-const signUpSchema = z.object({
-  username: z.string().min(3, "Username must be at least 3 characters"),
-  email: z.string().email("Invalid email"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
-  phone: z.string().min(5, "Invalid phone number"),
-  streetAddress: z.string().min(5, "Address too short"),
-  city: z.string().min(2, "City name too short"),
-  state: z.string().min(2, "State name too short"),
-  country: z.string().min(2, "Please select a country"),
-});
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { useUserStore } from "@/Zustand/store/user.store";
+import { useModalStore } from "@/Zustand/store/modal.store";
+import { useSignInMutation } from "@/mutations";
+import { useSignUpMutation } from "@/mutations/useSignupMutation";
+import { SignInForm } from "./SignInForm";
+import { SignUpForm } from "./SignupForm";
 
 interface AuthDialogProps {
   children: React.ReactNode;
 }
+type SignInFormValues = {
+  email: string;
+  password: string;
+};
+// Define the exact type expected by your signUp mutation
+type SignUpFormValues = {
+  username: string;
+  email: string;
+  password: string;
+  phone: string;
+  streetAddress: string;
+  city: string;
+  state: string;
+  country: string;
+  avatar?: File;
+};
 
 export const AuthDialog = ({ children }: AuthDialogProps) => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { modal, closeModal, openModal } = useModalStore((modal) => modal);
   const [isSignUp, setIsSignUp] = useState(false);
   const { setUser } = useUserStore();
 
-  const signInForm = useForm<z.infer<typeof signInSchema>>({
-    resolver: zodResolver(signInSchema),
-    defaultValues: { email: "", password: "" },
-  });
+  const signIn = useSignInMutation();
+  const signUp = useSignUpMutation();
 
-  const signUpForm = useForm<z.infer<typeof signUpSchema>>({
-    resolver: zodResolver(signUpSchema),
-    defaultValues: {
-      username: "",
-      email: "",
-      password: "",
-      phone: "",
-      streetAddress: "",
-      city: "",
-      state: "",
-      country: "",
-    },
-  });
-
-  const handleSignIn = async (values: z.infer<typeof signInSchema>) => {
+  const handleSignIn = async (values: SignInFormValues) => {
+    console.log("signing in ");
     try {
-      //   // Mock successful login
-      //   setUser({ email: values.email, name: "User" });
-      //   setIsDialogOpen(false);
+      await signIn.mutateAsync(values, {
+        onSuccess: (user) => {
+          setUser(user);
+          closeModal();
+        },
+      });
     } catch (error) {
       console.error("Sign in failed", error);
     }
   };
 
-  const handleSignUp = async (values: z.infer<typeof signUpSchema>) => {
+  const handleSignUp = async (values: SignUpFormValues) => {
+    console.log("signup is requiredx");
     try {
-      //   // Mock successful registration
-      //   setUser({ email: values.email, username: values.username });
-      //   setIsSignUp(false);
-      //   setIsDialogOpen(false);
+      if (!values.avatar) {
+        console.error("Avatar is required");
+        return;
+      }
+
+      // Transform the form values to match what your API expects
+      const signUpCredentials = {
+        email: values.email,
+        password: values.password,
+        username: values.username,
+        avatar: values.avatar,
+        address: `${values.streetAddress},${values.city},${values.state},${values.country}`,
+        phone: values.phone,
+      };
+
+      await signUp.mutateAsync(signUpCredentials, {
+        onSuccess: (user) => {
+          setUser(user);
+          closeModal();
+        },
+      });
     } catch (error) {
       console.error("Sign up failed", error);
     }
   };
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog
+      open={modal}
+      onOpenChange={(open) => {
+        if (!open) closeModal();
+        else openModal();
+      }}
+    >
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <div className="flex border-b">
+      <DialogContent className="sm:max-w-[600px] border-border/50">
+        <div className="flex border-b border-border/50">
           <button
-            className={`flex-1 py-2 font-medium ${
-              !isSignUp
-                ? "border-b-2 border-primary text-primary"
-                : "text-muted-foreground"
-            }`}
+            className={`flex-1 py-2 font-medium ${!isSignUp ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
             onClick={() => setIsSignUp(false)}
           >
             Sign In
           </button>
           <button
-            className={`flex-1 py-2 font-medium ${
-              isSignUp
-                ? "border-b-2 border-primary text-primary"
-                : "text-muted-foreground"
-            }`}
+            className={`flex-1 py-2 font-medium ${isSignUp ? "border-b-2 border-primary text-primary" : "text-muted-foreground"}`}
             onClick={() => setIsSignUp(true)}
           >
             Sign Up
@@ -109,181 +105,10 @@ export const AuthDialog = ({ children }: AuthDialogProps) => {
         </div>
 
         {!isSignUp ? (
-          <Form {...signInForm}>
-            <form
-              onSubmit={signInForm.handleSubmit(handleSignIn)}
-              className="space-y-4"
-            >
-              <FormField
-                control={signInForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="your@email.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={signInForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" className="w-full">
-                Sign In
-              </Button>
-            </form>
-          </Form>
+          <SignInForm onSubmit={handleSignIn} onSwitchToSignUp={() => setIsSignUp(true)} isLoading={signIn.isPending} />
         ) : (
-          <Form {...signUpForm}>
-            <form
-              onSubmit={signUpForm.handleSubmit(handleSignUp)}
-              className="space-y-4"
-            >
-              <FormField
-                control={signUpForm.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="shopfan123" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={signUpForm.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input placeholder="your@email.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={signUpForm.control}
-                name="password"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="••••••••"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="space-y-2">
-                <h4 className="text-sm font-medium">Address</h4>
-                <FormField
-                  control={signUpForm.control}
-                  name="streetAddress"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="123 Main St" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <div className="grid grid-cols-2 gap-2">
-                  <FormField
-                    control={signUpForm.control}
-                    name="city"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="City" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={signUpForm.control}
-                    name="state"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input placeholder="State" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                <FormField
-                  control={signUpForm.control}
-                  name="country"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormControl>
-                        <Input placeholder="Country" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <Button type="submit" className="w-full">
-                Create Account
-              </Button>
-            </form>
-          </Form>
+          <SignUpForm onSubmit={handleSignUp} onSwitchToSignIn={() => setIsSignUp(false)} isLoading={signUp.isPending} />
         )}
-
-        <div className="text-center text-sm text-muted-foreground">
-          {!isSignUp ? (
-            <>
-              Don&apos;t have an account?{" "}
-              <button
-                type="button"
-                className="text-primary hover:underline"
-                onClick={() => setIsSignUp(true)}
-              >
-                Sign up
-              </button>
-            </>
-          ) : (
-            <>
-              Already have an account?{" "}
-              <button
-                type="button"
-                className="text-primary hover:underline"
-                onClick={() => setIsSignUp(false)}
-              >
-                Sign in
-              </button>
-            </>
-          )}
-        </div>
       </DialogContent>
     </Dialog>
   );

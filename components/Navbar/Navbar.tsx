@@ -7,18 +7,13 @@ import { LogOut, UserCog, ShoppingBag, Home, Star } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Switch } from "@/components/ui/switch";
 import { SideDrawer } from "../SideDrawer/SideDrawer";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from "../ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator } from "../ui/dropdown-menu";
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { usePathname, useRouter } from "next/navigation";
 import { useUserStore } from "@/Zustand/store/user.store";
 import AuthDialog from "../AuthDialog/AuthDialog";
+import { useLogoutMutation } from "@/mutations";
 
 export const Navbar = React.memo(function Navbar() {
   const [darkMode, setDarkMode] = useState(false);
@@ -26,6 +21,7 @@ export const Navbar = React.memo(function Navbar() {
   const router = useRouter();
   const { clearUser, user } = useUserStore();
   const isUserLoggedIn = user;
+  const signout = useLogoutMutation();
 
   const mainLinks = [
     { name: "Home", link: "/", icon: <Home className="w-4 h-4" /> },
@@ -56,22 +52,17 @@ export const Navbar = React.memo(function Navbar() {
   }, [darkMode, setTheme]);
 
   const handleLogout = () => {
+    signout.mutate();
     clearUser();
     router.push("/");
   };
 
   return (
-    <header className="bg-background sticky top-0 z-50 w-full border-b shadow-sm">
+    <header className="bg-background sticky top-0 z-50 w-full  border border-border/50 shadow-sm ">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-4">
-          <SideDrawer
-            links={[...mainLinks, ...accountLinks]}
-            className="xl:hidden"
-          />
-          <h2
-            className="text-xl sm:text-2xl font-bold text-foreground cursor-pointer"
-            onClick={() => router.push("/")}
-          >
+          <SideDrawer links={[...mainLinks, ...accountLinks]} className="xl:hidden" />
+          <h2 className="text-xl sm:text-2xl font-bold text-foreground cursor-pointer" onClick={() => router.push("/")}>
             SHOP.CO
           </h2>
         </div>
@@ -82,9 +73,7 @@ export const Navbar = React.memo(function Navbar() {
               <li key={nav.name}>
                 <a
                   className={`flex items-center gap-1 text-sm lg:text-base font-medium transition-colors hover:text-primary ${
-                    pathname === nav.link
-                      ? "text-primary"
-                      : "text-muted-foreground"
+                    pathname === nav.link ? "text-primary" : "text-muted-foreground"
                   }`}
                   href={nav.link}
                 >
@@ -100,29 +89,16 @@ export const Navbar = React.memo(function Navbar() {
           <SearchComponent className="hidden sm:flex" />
 
           <div className="flex items-center gap-2 sm:gap-3">
-            <Switch
-              checked={darkMode}
-              onCheckedChange={() => setDarkMode(!darkMode)}
-              className="flex"
-            />
+            <Switch checked={darkMode} onCheckedChange={() => setDarkMode(!darkMode)} className="flex" />
 
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 sm:h-10 sm:w-10"
-              onClick={() => router.push("/cart")}
-            >
+            <Button variant="ghost" size="icon" className="h-9 w-9 sm:h-10 sm:w-10" onClick={() => router.push("/cart")}>
               <IoCartOutline className="w-4 h-4 sm:w-5 sm:h-5" />
               <span className="sr-only">Cart</span>
             </Button>
 
             {!isUserLoggedIn ? (
               <AuthDialog>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs sm:text-sm"
-                >
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm">
                   Sign In
                 </Button>
               </AuthDialog>
@@ -130,33 +106,21 @@ export const Navbar = React.memo(function Navbar() {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Avatar className="cursor-pointer h-8 w-8 sm:h-9 sm:w-9">
-                    <AvatarImage
-                      src="https://github.com/shadcn.png"
-                      alt="@shadcn"
-                    />
+                    <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
                     <AvatarFallback>CN</AvatarFallback>
                   </Avatar>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-48 sm:w-56">
-                  <DropdownMenuLabel className="text-xs sm:text-sm">
-                    My Account
-                  </DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-xs sm:text-sm">My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {accountLinks.map((link) => (
-                    <DropdownMenuItem
-                      key={link.name}
-                      onClick={() => router.push(link.link)}
-                      className="cursor-pointer text-xs sm:text-sm"
-                    >
+                    <DropdownMenuItem key={link.name} onClick={() => router.push(link.link)} className="cursor-pointer text-xs sm:text-sm">
                       {link.icon}
                       <span className="ml-2">{link.name}</span>
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={handleLogout}
-                    className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm"
-                  >
+                  <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:text-red-600 text-xs sm:text-sm">
                     <LogOut className="w-4 h-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>

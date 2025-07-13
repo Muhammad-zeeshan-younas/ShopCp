@@ -17,8 +17,6 @@ export class ReviewVO extends AbstractVO {
     this.product_id = data.product_id;
     this.rating = this.parseNumber(data.rating);
     this.comment = data.comment;
-
-    this.user = data.user ? new UserVO(data.user) : undefined;
   }
 
   // Getters

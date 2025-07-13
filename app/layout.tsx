@@ -4,32 +4,50 @@ import "./globals.css";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { ThemeProvider } from "next-themes";
-import { Provider, useDispatch } from "react-redux";
-import { Toaster } from "sonner";
-import { getUser } from "@/serverActions/userActions";
+
 import { useCallback, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUserStore } from "@/Zustand/store/user.store";
+import { Toaster } from "sonner";
+import { useGetCurrentUser } from "@/Queries";
 
 const inter = Inter({ subsets: ["latin"] });
-
+const safeLocalStorage = {
+  getItem(key: string): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(key);
+  },
+  removeItem(key: string): void {
+    if (typeof window === "undefined") return;
+    localStorage.removeItem(key);
+  },
+};
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const queryClient = new QueryClient();
+
   return (
     <html lang="en">
       <body className={inter.className}>
         <QueryClientProvider client={queryClient}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
+          <ThemeProvider attribute="class" enableSystem disableTransitionOnChange>
             <RootContent>{children}</RootContent>
+            <Toaster
+              position="top-right"
+              closeButton
+              toastOptions={{
+                classNames: {
+                  toast: "!p-4 !rounded-lg !font-medium",
+                  success: "!bg-green-500 !text-white",
+                  error: "!bg-red-500 !text-white",
+                  warning: "!bg-yellow-500 !text-white",
+                  info: "!bg-blue-500 !text-white",
+                },
+              }}
+            />
           </ThemeProvider>
         </QueryClientProvider>
       </body>
@@ -43,53 +61,42 @@ interface RootContentProps {
 
 const RootContent = ({ children }: RootContentProps) => {
   const { setUser, clearUser } = useUserStore();
-
-  const retrieveUser = useCallback(async () => {
-    const accessToken = localStorage.getItem("accessToken");
-
-    if (!accessToken) {
-      clearUser();
-      return;
-    }
-
-    try {
-      const response = await getUser();
-
-      // Ensure required fields are present
-      if (!response.id) {
-        throw new Error("Invalid user data received");
-      }
-
-      setUser(response);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      clearUser();
-      localStorage.removeItem("accessToken");
-    }
-  }, [setUser, clearUser]);
+  const token = safeLocalStorage.getItem("accessToken");
+  const { data: user, error } = useGetCurrentUser(token);
 
   useEffect(() => {
-    retrieveUser();
+    if (error) {
+      safeLocalStorage.removeItem("accessToken");
+    }
+  }, [error]);
 
-    // Optional: Set up token expiration check
+  useEffect(() => {
+    if (user) {
+      setUser(user);
+    }
+
     const checkTokenExpiration = () => {
-      const tokenExpiry = localStorage.getItem("tokenExpiry");
+      const tokenExpiry = safeLocalStorage.getItem("tokenExpiry");
       if (tokenExpiry && new Date() > new Date(tokenExpiry)) {
         clearUser();
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("tokenExpiry");
+        safeLocalStorage.removeItem("accessToken");
+        safeLocalStorage.removeItem("tokenExpiry");
       }
     };
 
     const interval = setInterval(checkTokenExpiration, 60000); // Check every minute
     return () => clearInterval(interval);
-  }, [retrieveUser, clearUser]);
+  }, [clearUser, setUser, user]);
+  useEffect(() => {
+    // Remove extension-added attributes after mount
+    document.body.removeAttribute("cz-shortcut-listen");
+  }, []);
 
   return (
-    <>
+    <div suppressHydrationWarning>
       <Navbar />
       {children}
       <Footer />
-    </>
+    </div>
   );
 };

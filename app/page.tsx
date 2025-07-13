@@ -1,67 +1,37 @@
 "use client";
 import Brands from "@/sections/Brands";
 import Hero from "@/sections/Hero";
-
 import Testimonials from "@/sections/Testimonials";
-import { getProducts } from "@/serverActions/productActions";
 import React, { Suspense, useMemo } from "react";
 import Loading from "./loading";
 import { Skeleton } from "@/components/ui/skeleton";
 import moment from "moment-timezone";
-import { getAllReview } from "@/serverActions/reviewActions";
-import { useQuery } from "@tanstack/react-query";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ProductVO, ReviewVO } from "@/utils/parsers";
 import HighlightSection from "@/sections/HighlightSection";
+import { useAllReviewsQuery, useProductsQuery } from "@/Queries";
 
 export default function Home() {
-  // Using React Query with proper error handling
-  const {
-    data: products = [],
-    isLoading: productsLoading,
-    error: productsError,
-  } = useQuery<ProductVO[]>({
-    queryKey: ["products"],
-    queryFn: async () => {
-      const data = await getProducts();
-      console.log("print mee");
-      console.log(data);
-      return Array.isArray(data) ? data : [];
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
-  });
-
-  const {
-    data: reviews = [],
-    isLoading: reviewsLoading,
-    error: reviewsError,
-  } = useQuery<ReviewVO[]>({
-    queryKey: ["reviews"],
-    queryFn: async () => {
-      const data = await getAllReview();
-      return Array.isArray(data) ? data : [];
-    },
-    staleTime: 1000 * 60 * 5, // 5 minutes cache
-  });
+  const { data: products, isLoading, error } = useProductsQuery();
+  const { data: reviews = [] } = useAllReviewsQuery();
 
   // Memoized derived data with proper typing
   const recentReviews: ReviewVO[] = useMemo(() => {
     return [...reviews].sort((a, b) => moment(b.created_at).valueOf() - moment(a.created_at).valueOf()).slice(0, 10);
   }, [reviews]);
 
+  console.log(products);
+
   // Modified to use rating instead of sales_count
   const popularProducts: ProductVO[] = useMemo(() => {
-    return [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
+    const safeProducts = products?.products ?? [];
+    return [...safeProducts].sort((a, b) => (b.rating || 0) - (a.rating || 0)).slice(0, 5);
   }, [products]);
-
-  console.log("popular products", products);
 
   const newArrivalProducts: ProductVO[] = useMemo(() => {
-    return [...products].sort((a, b) => moment(b.created_at).valueOf() - moment(a.created_at).valueOf()).slice(0, 10);
+    const safeProducts = products?.products ?? []; // fallback to empty array
+    return [...safeProducts].sort((a, b) => moment(b.created_at).valueOf() - moment(a.created_at).valueOf()).slice(0, 10);
   }, [products]);
-
-  const isLoading = productsLoading || reviewsLoading;
-  const error = productsError || reviewsError;
 
   if (error) {
     return (
@@ -116,7 +86,7 @@ export default function Home() {
           <Hero />
           <Brands />
           <HighlightSection title="NEW ARRIVALS" items={newArrivalProducts} />
-          {/* <HighlightSection title="POPULAR ITEMS" items={popularProducts} /> */}
+          <HighlightSection title="POPULAR ITEMS" items={popularProducts} />
           <Testimonials reviews={recentReviews} />
         </div>
       </Suspense>

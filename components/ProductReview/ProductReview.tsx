@@ -1,26 +1,8 @@
 // components/product/ProductReviews.tsx
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
 import { StarRating } from "@/components/StarRating";
 import { SlidersHorizontal, StarIcon } from "lucide-react";
@@ -31,6 +13,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import { createReview } from "@/serverActions/reviewActions";
 import { ReviewVO } from "@/utils/parsers";
+import { canWriteReview } from "@/utils/permissions/permissions";
+import { useModalStore, useUserStore } from "@/Zustand/store/store";
+import { toast } from "sonner";
 
 // Review form schema
 const reviewFormSchema = z.object({
@@ -48,14 +33,11 @@ interface ProductReviewsProps {
   onReviewSubmit: (newReview: ReviewVO) => void;
 }
 
-export const ProductReviews = ({
-  reviews,
-  productId,
-  onReviewSubmit,
-}: ProductReviewsProps) => {
+export const ProductReviews = ({ reviews, productId, onReviewSubmit }: ProductReviewsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  const user = useUserStore((state) => state.user);
+  const openModal = useModalStore((state) => state.openModal);
   const form = useForm<ReviewFormValues>({
     resolver: zodResolver(reviewFormSchema),
     defaultValues: {
@@ -66,6 +48,12 @@ export const ProductReviews = ({
 
   const onSubmit = async (values: ReviewFormValues) => {
     setIsLoading(true);
+    if (!canWriteReview(user)) {
+      setIsDialogOpen(false);
+      setIsLoading(false);
+      toast.error("You have to login first before you can submit a review.");
+      return;
+    }
     try {
       // const newReview = await createReview({
       //   productId,
@@ -96,16 +84,13 @@ export const ProductReviews = ({
             <DialogTrigger asChild>
               <Button>Write a Review</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md border-border/50">
               <DialogHeader>
                 <DialogTitle>Write a Review</DialogTitle>
               </DialogHeader>
 
               <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4"
-                >
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                   <FormField
                     control={form.control}
                     name="rating"
@@ -118,9 +103,7 @@ export const ProductReviews = ({
                               <StarIcon
                                 key={star}
                                 className={`h-6 w-6 cursor-pointer ${
-                                  field.value >= star
-                                    ? "fill-yellow-400 text-yellow-400"
-                                    : "text-muted-foreground"
+                                  field.value >= star ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"
                                 }`}
                                 onClick={() => field.onChange(star)}
                               />
@@ -139,11 +122,7 @@ export const ProductReviews = ({
                       <FormItem>
                         <FormLabel>Review</FormLabel>
                         <FormControl>
-                          <Textarea
-                            placeholder="Share your thoughts about this product..."
-                            className="min-h-[120px]"
-                            {...field}
-                          />
+                          <Textarea placeholder="Share your thoughts about this product..." className="min-h-[120px]" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -151,11 +130,7 @@ export const ProductReviews = ({
                   />
 
                   <div className="flex justify-end gap-2">
-                    <Button
-                      variant="outline"
-                      type="button"
-                      onClick={() => setIsDialogOpen(false)}
-                    >
+                    <Button variant="outline" type="button" onClick={() => setIsDialogOpen(false)}>
                       Cancel
                     </Button>
                     <Button type="submit" disabled={isLoading}>
@@ -171,28 +146,25 @@ export const ProductReviews = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reviews.map((review) => (
-          <Card key={review.id}>
+          <Card
+            key={review.id}
+            className="group overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer flex flex-col border border-border/50"
+          >
             <CardHeader className="pb-2">
-              <StarRating rating={review.rating} />
+              <StarRating rating={review.rating || 0} />
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-3">
                 <Avatar>
-                  <AvatarImage src={review.user.avatar} />
-                  <AvatarFallback>
-                    {review.user.username.charAt(0).toUpperCase()}
-                  </AvatarFallback>
+                  <AvatarImage src={review?.user?.avatar} />
+                  <AvatarFallback>{review?.user?.username || "".charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-medium">{review.user.username}</p>
-                  <p className="text-sm text-muted-foreground">
-                    Verified Buyer
-                  </p>
+                  <p className="font-medium">{review?.user?.username}</p>
+                  <p className="text-sm text-muted-foreground">Verified Buyer</p>
                 </div>
               </div>
-              <CardDescription className="mt-4">
-                {review.comment}
-              </CardDescription>
+              <CardDescription className="mt-4">{review.comment}</CardDescription>
             </CardContent>
           </Card>
         ))}
